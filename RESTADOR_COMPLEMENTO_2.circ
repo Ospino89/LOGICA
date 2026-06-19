@@ -1,0 +1,117 @@
+v2.0 raw
+
+# Restador con Complemento a 2 - LogicSim
+# Implementación: A - B = A + (~B + 1)
+# Componentes: Inversores + Sumador RCA + Sumador para +1
+
+# ETAPA 1: INVERSIÓN DE B (Complemento a 1)
+# NOT B[0]
+n 128 0 160 16
+w 128 0 136 8
+w 160 8 192 8
+
+# NOT B[1]
+n 128 32 160 48
+w 128 32 136 40
+w 160 40 192 40
+
+# NOT B[2]
+n 128 64 160 80
+w 128 64 136 72
+w 160 72 192 72
+
+# NOT B[3]
+n 128 96 160 112
+w 128 96 136 104
+w 160 104 192 104
+
+# ETAPA 2: SUMADOR RCA (A + ~B + 1)
+# El Cin se fija en 1 para sumar 1 automáticamente
+
+# FULL ADDER 0 (bits menos significativos)
+# Entrada: A0, ~B0, Cin=1
+# Salida: Sum0, Cout0
+
+w 0 0 0 64
+# XOR para Sum0
+x 0 0 32 16
+x 192 8 224 24
+w 224 16 256 16
+# AND para Cout0 (parte 1)
+x 0 64 32 80
+x 192 8 224 96
+a 224 80 256 96
+# AND para Cout0 (parte 2)
+x 0 0 16 16
+a 16 16 32 32
+# OR para Cout0
+o 256 96 272 104
+w 272 100 272 128
+
+# FULL ADDER 1
+# Entrada: A1, ~B1, Cout0
+# Salida: Sum1, Cout1
+
+w 0 32 0 96
+x 0 32 32 48
+x 192 40 224 56
+w 224 48 256 48
+x 0 96 32 112
+x 192 40 224 128
+a 224 112 256 128
+x 272 100 0 48
+a 0 48 32 64
+o 256 128 272 136
+w 272 132 272 160
+
+# FULL ADDER 2
+# Entrada: A2, ~B2, Cout1
+# Salida: Sum2, Cout2
+
+w 64 0 64 64
+x 64 0 96 16
+x 192 72 224 24
+w 224 16 256 16
+x 64 64 96 80
+x 192 72 224 96
+a 224 80 256 96
+x 272 132 64 16
+a 64 16 96 32
+o 256 96 272 104
+w 272 100 272 128
+
+# FULL ADDER 3
+# Entrada: A3, ~B3, Cout2
+# Salida: Sum3 (Resultado), Cout (Overflow)
+
+w 64 32 64 96
+x 64 32 96 48
+x 192 104 224 56
+w 224 48 256 48
+x 64 96 96 112
+x 192 104 224 128
+a 224 112 256 128
+x 272 128 64 48
+a 64 48 96 64
+o 256 128 272 136
+w 272 132 272 160
+
+# ENTRADAS A
+i 0 0 8 A[0]
+i 0 32 8 A[1]
+i 64 0 8 A[2]
+i 64 32 8 A[3]
+
+# ENTRADAS B (a invertir)
+i 128 0 8 B[0]
+i 128 32 8 B[1]
+i 128 64 8 B[2]
+i 128 96 8 B[3]
+
+# SALIDAS (Resultado A - B)
+o 256 16 264 Diff[0]
+o 256 48 264 Diff[1]
+o 256 16 264 Diff[2]
+o 256 48 264 Diff[3]
+
+o 272 160 280 Overflow
