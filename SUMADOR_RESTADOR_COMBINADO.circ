@@ -1,126 +1,83 @@
-v2.0 raw
-
-# Sumador/Restador Combinado - LogicSim
-# Selector de operación: Sel = 0 (Suma), Sel = 1 (Resta con Complemento a 2)
-
-# ETAPA 1: MULTIPLEXOR PARA SELECCIONAR B o ~B
-# Si Sel=0: pasa B (suma)
-# Si Sel=1: pasa ~B (resta)
-
-# MUX para B[0]
-a 128 0 160 16
-o 160 16 192 24
-n 128 0 160 40
-a 160 40 160 48
-o 192 24 224 32
-
-# MUX para B[1]
-a 128 32 192 80
-o 192 80 224 88
-n 128 32 192 104
-a 192 104 192 112
-o 224 88 256 96
-
-# MUX para B[2]
-a 128 64 224 144
-o 224 144 256 152
-n 128 64 224 168
-a 224 168 224 176
-o 256 152 288 160
-
-# MUX para B[3]
-a 128 96 256 208
-o 256 208 288 216
-n 128 96 256 232
-a 256 232 256 240
-o 288 216 320 224
-
-# Entrada selectora
-i 80 0 8 Sel
-
-# ETAPA 2: SUMADOR RCA (A + B' + Sel)
-# Sel se conecta a Cin para sumar 1 en resta
-
-# FULL ADDER 0
-x 0 0 32 16
-x 224 32 256 48
-w 256 40 288 40
-
-x 0 64 32 80
-x 224 32 256 96
-a 256 80 288 96
-
-x 0 0 16 16
-a 16 16 32 32
-
-o 288 96 304 104
-w 304 100 304 128
-
-# FULL ADDER 1
-x 0 32 32 48
-x 256 96 288 64
-w 288 56 320 56
-
-x 0 96 32 112
-x 256 96 288 128
-a 288 112 320 128
-
-x 304 100 0 48
-a 0 48 32 64
-
-o 320 128 336 136
-w 336 132 336 160
-
-# FULL ADDER 2
-x 64 0 96 16
-x 288 160 320 48
-w 320 40 352 40
-
-x 64 64 96 80
-x 288 160 320 96
-a 320 80 352 96
-
-x 336 132 64 16
-a 64 16 96 32
-
-o 352 96 368 104
-w 368 100 368 128
-
-# FULL ADDER 3
-x 64 32 96 48
-x 320 224 352 64
-w 352 56 384 56
-
-x 64 96 96 112
-x 320 224 352 128
-a 352 112 384 128
-
-x 368 128 64 48
-a 64 48 96 64
-
-o 384 128 400 136
-w 400 132 400 160
-
-# ENTRADAS A
-i 0 0 8 A[0]
-i 0 32 8 A[1]
-i 64 0 8 A[2]
-i 64 32 8 A[3]
-
-# ENTRADAS B
-i 128 0 8 B[0]
-i 128 32 8 B[1]
-i 128 64 8 B[2]
-i 128 96 8 B[3]
-
-# SALIDAS (Resultado)
-o 288 40 296 Result[0]
-o 320 56 328 Result[1]
-o 352 40 360 Result[2]
-o 384 56 392 Result[3]
-
-o 400 160 408 Cout/Overflow
-
-# ETIQUETA DE OPERACIÓN
-# Sel=0: Suma (A + B)
-# Sel=1: Resta (A - B)
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project source="2.7.1" version="1.0">
+  <lib desc="#Wiring" name="0"/>
+  <lib desc="#Gates" name="1"/>
+  <lib desc="#Plexers" name="2"/>
+  <lib desc="#Arithmetic" name="3"/>
+  <lib desc="#Memory" name="4"/>
+  <lib desc="#I/O" name="5"/>
+  <lib desc="#Base" name="6">
+    <tool name="Text Tool">
+      <a name="text" val=""/>
+      <a name="font" val="SansSerif plain 12"/>
+      <a name="halign" val="left"/>
+      <a name="valign" val="top"/>
+    </tool>
+  </lib>
+  <main name="main"/>
+  <circuit name="main">
+    <a name="circuit" val="main"/>
+    <a name="clabelup" val="east"/>
+    <a name="clabelfont" val="SansSerif plain 12"/>
+    <!-- SUMADOR/RESTADOR CON SELECTOR -->
+    <!-- Entradas A -->
+    <comp lib="0" loc="(40,60)" name="Pin">
+      <a name="width" val="4"/>
+      <a name="label" val="A[3:0]"/>
+    </comp>
+    <!-- Entradas B -->
+    <comp lib="0" loc="(40,120)" name="Pin">
+      <a name="width" val="4"/>
+      <a name="label" val="B[3:0]"/>
+    </comp>
+    <!-- Selector (0=Suma, 1=Resta) -->
+    <comp lib="0" loc="(40,200)" name="Pin">
+      <a name="label" val="Sel"/>
+    </comp>
+    <!-- NOT para B (Complemento a 1) -->
+    <comp lib="1" loc="(120,120)" name="NOT Gate">
+      <a name="width" val="4"/>
+    </comp>
+    <!-- MUX 2:1 para seleccionar B o ~B -->
+    <comp lib="2" loc="(180,110)" name="Multiplexer">
+      <a name="width" val="4"/>
+      <a name="selwidth" val="1"/>
+    </comp>
+    <!-- Sumador RCA de 4 bits -->
+    <comp lib="3" loc="(300,140)" name="Adder">
+      <a name="width" val="4"/>
+    </comp>
+    <!-- Salida Resultado -->
+    <comp lib="0" loc="(400,80)" name="Pin">
+      <a name="facing" val="west"/>
+      <a name="output" val="true"/>
+      <a name="width" val="4"/>
+      <a name="label" val="Result[3:0]"/>
+    </comp>
+    <!-- Salida Cout/Overflow -->
+    <comp lib="0" loc="(400,180)" name="Pin">
+      <a name="facing" val="west"/>
+      <a name="output" val="true"/>
+      <a name="label" val="Cout"/>
+    </comp>
+    <!-- Conexiones -->
+    <!-- A → Sumador -->
+    <wire from="(40,60)" to="(300,60)"/>
+    <!-- B → NOT (para complemento) -->
+    <wire from="(40,120)" to="(120,120)"/>
+    <!-- NOT B → MUX (entrada 1) -->
+    <wire from="(120,130)" to="(180,140)"/>
+    <!-- B → MUX (entrada 0) -->
+    <wire from="(40,120)" to="(180,110)"/>
+    <!-- Selector → MUX -->
+    <wire from="(40,200)" to="(180,150)"/>
+    <!-- MUX → Sumador (entrada B) -->
+    <wire from="(180,120)" to="(300,120)"/>
+    <!-- Selector → Cin del Sumador (para sumar 1 en resta) -->
+    <wire from="(40,200)" to="(300,180)"/>
+    <!-- Resultado del Sumador → Salida -->
+    <wire from="(300,80)" to="(400,80)"/>
+    <!-- Cout del Sumador → Salida -->
+    <wire from="(300,200)" to="(400,180)"/>
+  </circuit>
+</project>
